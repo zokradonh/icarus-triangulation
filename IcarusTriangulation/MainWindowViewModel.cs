@@ -9,10 +9,10 @@ namespace IcarusTriangulation;
 
 public class MainWindowViewModel : ObservableRecipient
 {
-    private AngleMeasure _currentMeasure;
+    private AngleMeasure? _currentMeasure;
     private Modes _mode;
     private Screenshot? _currentScreenshot;
-    public ObservableCollection<Calibration> Calibrations { get; } = new();
+    public ObservableCollection<AngleCalibration> Calibrations { get; } = new();
     public ObservableCollection<Screenshot> Screenshots { get; } = new();
     public ObservableCollection<AngleMeasure> SelectedMeasures { get; } = new();
 
@@ -22,7 +22,7 @@ public class MainWindowViewModel : ObservableRecipient
         set => SetProperty(ref _currentScreenshot, value);
     }
 
-    public AngleMeasure CurrentMeasure
+    public AngleMeasure? CurrentMeasure
     {
         get => _currentMeasure;
         set => SetProperty(ref _currentMeasure, value);
@@ -39,8 +39,9 @@ public class MainWindowViewModel : ObservableRecipient
     public RelayCommand<AngleMeasure> RemoveMeasureCommand => new(RemoveMeasure);
     public RelayCommand<AngleMeasure> RespecifyMeasureCommand => new(RespecifyMeasure);
     public RelayCommand<Screenshot> RemoveScreenshotCommand => new(RemoveScreenshot);
-    public RelayCommand<Calibration> RemoveCalibrationCommand => new(RemoveCalibration);
-    public RelayCommand<Calibration> AssignCalibrationCommand => new(AssignCalibration);
+    public RelayCommand<AngleCalibration> RemoveCalibrationCommand => new(RemoveCalibration);
+    public RelayCommand<AngleCalibration> AssignCalibrationCommand => new(AssignCalibration);
+    public RelayCommand<Screenshot> CalibrateGridCommand => new(CalibrateGrid);
 
     public RelayCommand NewCalibrationCommand { get; }
 
@@ -49,17 +50,27 @@ public class MainWindowViewModel : ObservableRecipient
         NewCalibrationCommand = new RelayCommand(NewCalibration, CanCreateNewCalibration);
         NewCalibrationCommand.NotifyCanExecuteChanged();
         
-        Calibrations.Add(Calibration.DefaultCalibration);
+        Calibrations.Add(AngleCalibration.DefaultAngleCalibration);
     }
 
-    private void AssignCalibration(Calibration? calibration)
+    private void CalibrateGrid(Screenshot? obj)
+    {
+        if (CurrentScreenshot == null) return;
+        
+        CurrentScreenshot.MapGridView = new MapGridView();
+        Mode = Modes.GridEdge;
+    }
+
+    public void AssignCalibration(AngleCalibration? calibration)
     {
         if (CurrentScreenshot != null && calibration != null)
         {
             foreach (var currentScreenshotAngleMeasure in CurrentScreenshot.AngleMeasures)
             {
-                currentScreenshotAngleMeasure.Calibration = calibration;
+                currentScreenshotAngleMeasure.AngleCalibration = calibration;
             }
+
+            CurrentScreenshot.DefaultCalibration = calibration;
         }
     }
     
@@ -76,7 +87,7 @@ public class MainWindowViewModel : ObservableRecipient
         Mode = Modes.Calibrate;
     }
 
-    private void RemoveCalibration(Calibration? obj)
+    private void RemoveCalibration(AngleCalibration? obj)
     {
         if (obj != null) Calibrations.Remove(obj);
     }
@@ -119,6 +130,7 @@ public class MainWindowViewModel : ObservableRecipient
         
         var angleMeasure = new AngleMeasure();
         CurrentScreenshot.AngleMeasures.Add(angleMeasure);
+        angleMeasure.AngleCalibration = CurrentScreenshot.DefaultCalibration;
         _currentMeasure = angleMeasure;
         Mode = Modes.PlaceNewStart;
 

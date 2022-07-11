@@ -6,5 +6,7 @@ public enum Modes
     PlaceNewStart,
     MeasureLine1,
     MeasureLine2,
-    Calibrate
+    Calibrate,
+    GridEdge,
+    GridOppositeEdge
 }

@@ -8,12 +8,12 @@ namespace IcarusTriangulation;
 public class AngleMeasure : ObservableObject
 {
 
-    public Calibration Calibration
+    public AngleCalibration AngleCalibration
     {
-        get => _calibration;
+        get => _angleCalibration;
         set
         {
-            if (SetProperty(ref _calibration, value))
+            if (SetProperty(ref _angleCalibration, value))
             {
                 OnPropertyChanged(nameof(TriangulationDiameter));
                 OnPropertyChanged(nameof(Left));
@@ -29,7 +29,7 @@ public class AngleMeasure : ObservableObject
     private Point _l1;
     private Point _l2;
     private bool _isComplete;
-    private Calibration _calibration;
+    private AngleCalibration _angleCalibration;
 
     public Point StartPoint
     {
@@ -78,12 +78,12 @@ public class AngleMeasure : ObservableObject
     public Vector V2 => new Vector(L2.X - StartPoint.X, L2.Y - StartPoint.Y);
     // return the angle in degree, not radiant
     public double Angle => Math.Acos((V1 * V2) / (V1.Length * V2.Length)) * 180 / Math.PI;
-    public double TriangulationDiameter => (Angle * Calibration.DistanceSlope + Calibration.DistanceOffset) * 2;
+    public double TriangulationDiameter => AngleCalibration.Equation.Calc(Angle) * 2;
     public double Left => StartPoint.X - TriangulationDiameter / 2;
     public double Top => StartPoint.Y - TriangulationDiameter / 2;
     
     public AngleMeasure()
     {
-        _calibration = Calibration.DefaultCalibration;
+        _angleCalibration = AngleCalibration.DefaultAngleCalibration;
     }
 }

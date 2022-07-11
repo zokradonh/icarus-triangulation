@@ -9,7 +9,8 @@
     Title="Zok's Icarus Exotics Triangulation"
     Height="450"
     Width="800"
-    d:DataContext="{d:DesignInstance local:MainWindowViewModel}">
+    d:DataContext="{d:DesignInstance local:MainWindowViewModel}"
+    KeyUp="MainWindow_OnKeyUp">
     <Window.Resources>
         <BooleanToVisibilityConverter
             x:Key="BooleanToVisibilityConverter" />
@@ -17,7 +18,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition
-                Height="43" />
+                Height="50" />
             <RowDefinition
                 Height="50" />
             <RowDefinition
@@ -41,6 +42,10 @@
                 <DataTemplate>
                     <StackPanel
                         Orientation="Vertical">
+                        <Label
+                            Height="30"
+                            Content="{Binding MapGridView.GridWidth}"
+                            ContentStringFormat="GridWidth: {0}"/>
                         <Image
                             Source="{Binding Image}"
                             Width="185"
@@ -49,6 +54,10 @@
                             Content="X"
                             CommandParameter="{Binding }"
                             Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}, Path=DataContext.RemoveScreenshotCommand}" />
+                        <Button
+                            Content="Calibrate Grid"
+                            CommandParameter="{Binding }"
+                            Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}, Path=DataContext.CalibrateGridCommand}" />
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
@@ -101,6 +110,18 @@
                         </Canvas>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl
+                ItemsSource="{Binding CurrentScreenshot.MapGridView.MapGridLines}"
+                
+                >
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas
+                            Left="{Binding CurrentGrid.GridStartEdge.X}"
+                            Top="{Binding CurrentGrid.GridStartEdge.Y}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
             </ItemsControl>
         </Canvas>
         <Button
